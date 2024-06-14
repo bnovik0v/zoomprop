@@ -1,0 +1,15 @@
+requests
+tenacity
+fastapi
+gunicorn
+uvicorn[standard]
+python-dotenv
+httpx
+alembic
+SQLAlchemy
+pydantic_settings
+psycopg2-binary
+websocket-client
+python-jose[cryptography]
+passlib[bcrypt]
+geoalchemy2
