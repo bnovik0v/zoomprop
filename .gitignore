@@ -218,3 +218,5 @@ pyrightconfig.json
 /notebooks/
 .env.*
 *.sh
+*.log
+*.db
