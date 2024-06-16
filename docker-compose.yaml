@@ -1,46 +1,16 @@
 version: "3.8"
 
 services:
-  db:
-    image: postgres:latest
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    ports:
-      - "127.0.0.1:${DB_PORT}:5432"
-
-  migrate:
-    build: .
-    command: ["./wait-for-db.sh", "db", "${DB_PORT}", "alembic", "upgrade", "head"]
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - DB_HOST=db
-      - DB_PORT=${DB_PORT}
-      - POSTGRES_DB=${POSTGRES_DB}
-    depends_on:
-      - db
-    volumes:
-      - alembic_migrations:/app/alembic/versions
-
   web:
     build: .
     volumes:
       - projects_data:/app/static/projects
-      - alembic_migrations:/app/alembic/versions
-      - ./data:${DATA_DIR}
+      - ./data:/app/data
     environment:
-      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
-      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${DB_PORT}/${POSTGRES_DB}
-    depends_on:
-      - db
+      - DATABASE_URL=sqlite:///./database.db
+    ports:
+      - "8000:8000"
 
 volumes:
-  postgres_data:
   redis_data:
   projects_data:
-  alembic_migrations:

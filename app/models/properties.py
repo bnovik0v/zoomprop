@@ -2,7 +2,6 @@
 
 import datetime
 from sqlalchemy import Column, Integer, String, Float, DateTime
-from geoalchemy2 import Geometry
 from app.database import Base
 
 
@@ -15,13 +14,12 @@ class Property(Base):
     address = Column(String, nullable=False)
     city = Column(String, nullable=False)
     state = Column(String, nullable=False)
-    zipCode = Column(String, nullable=False)
+    zip_code = Column(String, nullable=False)
     price = Column(Float, nullable=False)
     bedrooms = Column(Integer, nullable=False)
     bathrooms = Column(Integer, nullable=False)
     square_feet = Column(Integer, nullable=False)
     date_listed = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
-    geometry = Column(Geometry(geometry_type='POINT', srid=4326), nullable=False)
 
     def __repr__(self):
         """Return string representation of the model."""
