@@ -201,7 +201,7 @@ def detect_price_outliers(
     upper_bound = q3 + factor * iqr
 
     return (
-        db.query(models.Property)
+        query
         .filter(
             (models.Property.price < lower_bound)
             | (models.Property.price > upper_bound)
