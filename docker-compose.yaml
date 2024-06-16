@@ -8,6 +8,6 @@ services:
     ports:
       - "${PORT}:8000"
     volumes:
-      - /app/database
+      - ./database:/app/database
     env_file:
       - .env
