@@ -23,7 +23,7 @@ router = APIRouter(
 
 
 @router.post("/properties/", response_model=schemas.Property)
-def create_property(
+async def create_property(
     property_: schemas.PropertyCreate,
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
@@ -34,7 +34,7 @@ def create_property(
 
 
 @router.get("/properties/statistics", response_model=schemas.PropertyStatistics)
-def get_property_statistics(
+async def get_property_statistics(
     price_min: float | None = Query(None, ge=0),
     price_max: float | None = Query(None, ge=0),
     bedrooms: int | None = Query(None, ge=0),
@@ -64,7 +64,7 @@ def get_property_statistics(
 
 
 @router.get("/properties/", response_model=list[schemas.Property])
-def read_properties(
+async def read_properties(
     price_min: float | None = Query(None, ge=0),
     price_max: float | None = Query(None, ge=0),
     bedrooms: int | None = Query(None, ge=0),
@@ -98,7 +98,7 @@ def read_properties(
 
 
 @router.put("/properties/{property_id}", response_model=schemas.Property)
-def update_property(
+async def update_property(
     property_id: int,
     property_: schemas.PropertyUpdate,
     db: Session = Depends(get_db),
@@ -114,7 +114,7 @@ def update_property(
 
 
 @router.delete("/properties/{property_id}", response_model=schemas.Property)
-def delete_property(
+async def delete_property(
     property_id: int,
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
@@ -157,11 +157,8 @@ def upload_properties_csv(
 
     content = file.file.read().decode("utf-8")
     csv_reader = csv.DictReader(StringIO(content))
-    
-    existing_property_ids = set(
-        db.query(models.Property.property_id)
-        .all()
-    )
+
+    existing_property_ids = set(db.query(models.Property.property_id).all())
     properties = []
     for row in csv_reader:
         property_id = int(row["propertyid"])
@@ -185,12 +182,18 @@ def upload_properties_csv(
         properties.append(property_)
         existing_property_ids.add(property_id)
 
-    crud.create_properties(db=db, properties=properties)
+    if properties:
+        crud.create_properties(db=db, properties=properties)
+    else:
+        logger.warning("No new properties to upload")
+        return {"status": "success", "message": "No new properties to upload"}
+
     return {"status": "success", "message": "Properties uploaded successfully"}
 
 
+
 @router.get("/properties/plot/price_distribution")
-def get_price_distribution(
+async def get_price_distribution(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
@@ -201,7 +204,7 @@ def get_price_distribution(
 
 
 @router.get("/properties/plot/bedrooms_distribution")
-def get_bedrooms_distribution(
+async def get_bedrooms_distribution(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
@@ -212,7 +215,7 @@ def get_bedrooms_distribution(
 
 
 @router.get("/properties/outliers", response_model=list[schemas.Property])
-def get_price_outliers(
+async def get_price_outliers(
     price_min: float | None = Query(None, ge=0),
     price_max: float | None = Query(None, ge=0),
     bedrooms: int | None = Query(None, ge=0),
@@ -249,7 +252,7 @@ def get_price_outliers(
 
 
 @router.get("/properties/{property_id}", response_model=schemas.Property)
-def read_property(
+async def read_property(
     property_id: int,
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
@@ -266,7 +269,7 @@ def read_property(
 @router.get(
     "/properties/insights/", response_model=list[schemas.PropertyHistoricalInsight]
 )
-def get_historical_insights(
+async def get_historical_insights(
     start_date: datetime.datetime | None = Query(None),
     end_date: datetime.datetime | None = Query(None),
     db: Session = Depends(get_db),
