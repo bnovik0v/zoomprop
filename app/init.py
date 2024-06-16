@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
+
 def init_admin_user(db: Session) -> models.User:
     """Initialize admin user."""
     admin_user = crud.get_user(db, username=settings.admin_username)
@@ -35,11 +36,13 @@ def init_admin_user(db: Session) -> models.User:
         logger.info("Admin user %s already exists.", admin_user.username)
     return admin_user
 
+
 def database_exists(engine) -> bool:
     """Check if the database exists by inspecting for tables."""
     inspector = inspect(engine)
     tables = inspector.get_table_names()
     return bool(tables)
+
 
 def init_db():
     """Initialize the database."""
