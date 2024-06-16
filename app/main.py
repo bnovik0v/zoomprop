@@ -5,10 +5,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.sql import text
 
 from app.init import init_admin_user, init_db
-from app.database import Base, SessionLocal, engine
+from app.database import SessionLocal
 from app.routers import users, properties, auth
 from app.settings import get_settings
 
@@ -21,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan context manager."""
@@ -31,6 +31,7 @@ async def lifespan(app: FastAPI):
     finally:
         db.close()
     yield
+
 
 app = FastAPI(
     lifespan=lifespan,
@@ -47,11 +48,13 @@ app.add_middleware(
     allow_headers=["Authorization"],
 )
 
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     """Health check."""
     logger.info("Health check")
     return {"status": "healthy"}
+
 
 app.include_router(users.router)
 app.include_router(properties.router)
