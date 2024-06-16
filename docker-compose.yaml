@@ -3,14 +3,9 @@ version: "3.8"
 services:
   web:
     build: .
-    volumes:
-      - projects_data:/app/static/projects
-      - ./data:/app/data
     environment:
-      - DATABASE_URL=sqlite:///./database.db
+      - DATABASE_URL=sqlite:///./database/database.db
     ports:
       - "8000:8000"
-
-volumes:
-  redis_data:
-  projects_data:
+    volumes:
+      - ./data:/app/database

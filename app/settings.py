@@ -8,7 +8,7 @@ class Settings(BaseSettings):
 
     port: int
     gunicorn_workers: int
-    sqlite_db: str = "database.db"
+    sqlite_db: str = "./database/database.db"
     secret_key: str
     refresh_secret_key: str
     admin_username: str

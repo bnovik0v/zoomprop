@@ -7,14 +7,16 @@ from pydantic import BaseModel
 class PropertyBase(BaseModel):
     """Property base model."""
 
+    property_id: int
     address: str
     city: str
     state: str
     zip_code: str
-    price: float
-    bedrooms: int
-    bathrooms: int
-    square_feet: int
+    price: float | None = None
+    bedrooms: int | None = None
+    bathrooms: float | None = None
+    square_feet: int | None = None
+    date_listed: datetime | None = None
 
 
 class PropertyCreate(PropertyBase):
@@ -28,8 +30,29 @@ class PropertyUpdate(PropertyBase):
 class Property(PropertyBase):
     """Property model."""
 
-    property_id: int
-    date_listed: datetime
+    class Config:
+        """Config."""
+
+        from_attributes = True
+
+
+class PropertyStatistics(BaseModel):
+    """Property statistics model."""
+
+    average_price: float | None = None
+    median_price: float | None = None
+    average_price_per_sqft: float | None = None
+    total_properties: int | None = None
+
+
+class PropertyHistoricalInsight(BaseModel):
+    """Historical insight model."""
+
+    year: int
+    month: int
+    count: int
+    average_price: float
+    average_square_feet: float
 
     class Config:
         """Config."""

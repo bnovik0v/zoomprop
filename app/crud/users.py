@@ -1,6 +1,5 @@
 """ CRUD operations for users. """
 
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app import models, schemas
 from app.utils.auth import get_password_hash
@@ -19,17 +18,11 @@ def create_user(db: Session, user: schemas.UserCreate | dict) -> models.User:
     del data["password"]
 
     db_user = models.User(**data)
-    try:
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        return db_user
-    except IntegrityError:
-        db.rollback()
-        existing_user = get_user(db, username=data["username"])
-        if existing_user:
-            return existing_user
-        raise
+
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
 
 def get_user(
