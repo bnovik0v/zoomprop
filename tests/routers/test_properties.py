@@ -1,8 +1,11 @@
+""" Tests for the properties router."""
+
 import pytest
 from fastapi.testclient import TestClient
 
 
 def test_create_property(client: TestClient, auth_headers ):
+    """Test creating a property."""
     property_data = {
         "property_id": 1,
         "address": "123 Main St",
@@ -21,18 +24,20 @@ def test_create_property(client: TestClient, auth_headers ):
 
 
 def test_get_property_statistics(client: TestClient, auth_headers):
+    """Test getting property statistics."""
     response = client.get("/api/properties/statistics/", headers=auth_headers)
     assert response.status_code == 200
 
 
 def test_read_properties(client: TestClient, auth_headers):
+    """Test reading properties."""
     response = client.get("/api/properties/", headers=auth_headers)
     assert response.status_code == 200
 
 
 def test_update_property(client: TestClient, auth_headers):
+    """Test updating a property."""
     property_update = {"bedrooms": 4}
-    # First create a property to update
     create_response = client.post(
         "/api/properties/",
         json={
@@ -58,7 +63,6 @@ def test_update_property(client: TestClient, auth_headers):
 
 
 def test_delete_property(client: TestClient, auth_headers):
-    # First create a property to delete
     create_response = client.post(
         "/api/properties/",
         json={
