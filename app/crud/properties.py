@@ -8,7 +8,15 @@ from . import models, schemas
 
 
 def get_property(db: Session, property_id: int) -> models.Property:
-    """Get property."""
+    """Get property
+
+    Args:
+    - db (Session): Database session
+    - property_id (int): Property ID
+
+    Returns:
+    - models.Property: Property model
+    """
     return (
         db.query(models.Property)
         .filter(models.Property.property_id == property_id)
@@ -19,14 +27,31 @@ def get_property(db: Session, property_id: int) -> models.Property:
 def get_properties(
     db: Session, skip: int = 0, limit: int = 10
 ) -> list[models.Property]:
-    """Get all properties or a limited number of properties"""
+    """Get all properties or a limited number of properties
+
+    Args:
+    - db (Session): Database session
+    - skip (int): Number of records to skip
+    - limit (int): Number of records to return
+
+    Returns:
+    - list[models.Property]: List of Property models
+    """
     return db.query(models.Property).offset(skip).limit(limit).all()
 
 
 def create_property(
     db: Session, property_: schemas.PropertyCreate | dict
 ) -> models.Property:
-    """Create a new property."""
+    """Create a new property.
+
+    Args:
+    - db (Session): Database session
+    - property_ (PropertyCreate | dict): Property data
+
+    Returns:
+    - models.Property: Property model
+    """
     if isinstance(property_, dict):
         data = property_
     elif isinstance(property_, schemas.PropertyCreate):
@@ -42,7 +67,15 @@ def create_property(
 
 
 def create_properties(db: Session, properties: list[schemas.PropertyCreate]):
-    """Create multiple properties."""
+    """Create multiple properties
+
+    Args:
+    - db (Session): Database session
+    - properties (list[PropertyCreate]): List of PropertyCreate objects
+
+    Returns:
+    - None
+    """
     db_properties = [
         models.Property(**property_.model_dump()) for property_ in properties
     ]
@@ -53,7 +86,16 @@ def create_properties(db: Session, properties: list[schemas.PropertyCreate]):
 def update_property(
     db: Session, property_id: int, property_: schemas.PropertyUpdate | dict
 ) -> models.Property:
-    """Update a property."""
+    """Update a property
+
+    Args:
+    - db (Session): Database session
+    - property_id (int): Property ID
+    - property_ (PropertyUpdate | dict): Property data
+
+    Returns:
+    - models.Property: Property model
+    """
     db_property = (
         db.query(models.Property)
         .filter(models.Property.property_id == property_id)
@@ -75,7 +117,15 @@ def update_property(
 
 
 def delete_property(db: Session, property_id: int) -> models.Property:
-    """Delete a property."""
+    """Delete a property
+
+    Args:
+    - db (Session): Database session
+    - property_id (int): Property ID
+
+    Returns:
+    - models.Property: Property model
+    """
     db_property = (
         db.query(models.Property)
         .filter(models.Property.property_id == property_id)
@@ -88,9 +138,26 @@ def delete_property(db: Session, property_id: int) -> models.Property:
 
 
 def apply_filters(
-    query, price_min=None, price_max=None, bedrooms=None, bathrooms=None, city=None
+    query,
+    price_min: float | None = None,
+    price_max: float | None = None,
+    bedrooms: int | None = None,
+    bathrooms: float | None = None,
+    city: str | None = None,
 ):
-    """Apply filters to a query."""
+    """Apply filters to a query
+
+    Args:
+    - query: SQLAlchemy query
+    - price_min (float): Minimum price
+    - price_max (float): Maximum price
+    - bedrooms (int): Number of bedrooms
+    - bathrooms (int): Number of bathrooms
+    - city (str): City
+
+    Returns:
+    - query: SQLAlchemy query
+    """
     if price_min is not None:
         query = query.filter(models.Property.price >= price_min)
     if price_max is not None:
@@ -109,10 +176,22 @@ def get_property_statistics(
     price_min: float | None = None,
     price_max: float | None = None,
     bedrooms: int | None = None,
-    bathrooms: int | None = None,
+    bathrooms: float | None = None,
     city: str | None = None,
 ):
-    """Get property statistics with optional filters."""
+    """Get property statistics with optional filters.
+
+    Args:
+    - db (Session): Database session
+    - price_min (float): Minimum price
+    - price_max (float): Maximum price
+    - bedrooms (int): Number of bedrooms
+    - bathrooms (float): Number of bathrooms
+    - city (str): City
+
+    Returns:
+    - dict: Property statistics
+    """
     query = db.query(models.Property)
     query = apply_filters(query, price_min, price_max, bedrooms, bathrooms, city)
 
@@ -169,7 +248,21 @@ def filter_properties(
     skip: int = 0,
     limit: int = 10,
 ) -> list[models.Property]:
-    """Filter properties."""
+    """Filter properties
+
+    Args:
+    - db (Session): Database session
+    - price_min (float): Minimum price
+    - price_max (float): Maximum price
+    - bedrooms (int): Number of bedrooms
+    - bathrooms (int): Number of bathrooms
+    - city (str): City
+    - skip (int): Number of records to skip
+    - limit (int): Number of records to return
+
+    Returns:
+    - list[models.Property]: List of Property models
+    """
     query = db.query(models.Property)
     query = apply_filters(query, price_min, price_max, bedrooms, bathrooms, city)
     return query.offset(skip).limit(limit).all()
@@ -186,15 +279,27 @@ def detect_price_outliers(
     skip: int = 0,
     limit: int = 10,
 ) -> list[models.Property]:
-    """Detect outliers in property prices using the IQR method with optional filters."""
+    """Detect outliers in property prices using the IQR method with optional filters.
 
-    # Apply initial filters to the query
+    Args:
+    - db (Session): Database session
+    - price_min (float): Minimum price
+    - price_max (float): Maximum price
+    - bedrooms (int): Number of bedrooms
+    - bathrooms (int): Number of bathrooms
+    - city (str): City
+    - factor (float): IQR factor
+    - skip (int): Number of records to skip
+    - limit (int): Number of records to return
+
+    Returns:
+    - list[models.Property]: List of Property models
+    """
     filtered_query = db.query(models.Property)
     filtered_query = apply_filters(
         filtered_query, price_min, price_max, bedrooms, bathrooms, city
     )
 
-    # Extract prices after applying the filters
     prices = [
         property_.price
         for property_ in filtered_query.all()
@@ -203,19 +308,16 @@ def detect_price_outliers(
     if not prices:
         return []
 
-    # Calculate IQR and outlier bounds
     q1 = np.percentile(prices, 25)
     q3 = np.percentile(prices, 75)
     iqr = q3 - q1
     lower_bound = q1 - factor * iqr
     upper_bound = q3 + factor * iqr
 
-    # Reapply filters and add outlier conditions
     outliers_query = filtered_query.filter(
         (models.Property.price < lower_bound) | (models.Property.price > upper_bound)
     )
 
-    # Apply pagination
     outliers = outliers_query.offset(skip).limit(limit).all()
 
     return outliers

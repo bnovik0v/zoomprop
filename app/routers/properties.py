@@ -28,7 +28,16 @@ async def create_property(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
-    """Create a new property."""
+    """Create a new property.
+
+    Args:
+        property_ (schemas.PropertyCreate): Property data
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+        auth_token (str, optional): Authorization token. Defaults to Depends(oauth2_scheme).
+
+    Returns:
+        schemas.Property: Created property
+    """
     logger.info("Creating property %s", property_)
     return crud.create_property(db=db, property_=property_)
 
@@ -43,7 +52,20 @@ async def get_property_statistics(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
-    """Get property statistics."""
+    """Get property statistics.
+
+    Args:
+        price_min (float, optional): Minimum price. Defaults to Query(None, ge=0).
+        price_max (float, optional): Maximum price. Defaults to Query(None, ge=0).
+        bedrooms (int, optional): Number of bedrooms. Defaults to Query(None, ge=0).
+        bathrooms (int, optional): Number of bathrooms. Defaults to Query(None, ge=0).
+        city (str, optional): City. Defaults to Query(None).
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+        auth_token (str, optional): Authorization token. Defaults to Depends(oauth2_scheme).
+
+    Returns:
+        schemas.PropertyStatistics: Property statistics
+    """
     logger.info(
         "Getting property statistics with filters price_min=%s, price_max=%s, bedrooms=%s, bathrooms=%s, city=%s",
         price_min,
@@ -75,7 +97,22 @@ async def read_properties(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
-    """Read properties."""
+    """Read properties
+
+    Args:
+        price_min (float, optional): Minimum price. Defaults to Query(None, ge=0).
+        price_max (float, optional): Maximum price. Defaults to Query(None, ge=0).
+        bedrooms (int, optional): Number of bedrooms. Defaults to Query(None, ge=0).
+        bathrooms (int, optional): Number of bathrooms. Defaults to Query(None, ge=0).
+        city (str, optional): City. Defaults to Query(None).
+        skip (int, optional): Number of records to skip. Defaults to 0.
+        limit (int, optional): Number of records to return. Defaults to 10.
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+        auth_token (str, optional): Authorization token. Defaults to Depends(oauth2_scheme).
+
+    Returns:
+        list[schemas.Property]: List of properties
+    """
     logger.info(
         "Reading properties with filters price_min=%s, price_max=%s, bedrooms=%s, bathrooms=%s, city=%s",
         price_min,
@@ -104,7 +141,17 @@ async def update_property(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
-    """Update a property."""
+    """Update a property.
+
+    Args:
+        property_id (int): Property ID
+        property_ (schemas.PropertyUpdate): Property data
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+        auth_token (str, optional): Authorization token. Defaults to Depends(oauth2_scheme).
+
+    Returns:
+        schemas.Property: Updated property
+    """
     logger.info("Updating property %s with data %s", property_id, property_)
     db_property = crud.get_property(db, property_id=property_id)
     if db_property is None:
@@ -119,7 +166,16 @@ async def delete_property(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
-    """Delete a property."""
+    """Delete a property.
+
+    Args:
+        property_id (int): Property ID
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+        auth_token (str, optional): Authorization token. Defaults to Depends(oauth2_scheme).
+
+    Returns:
+        schemas.Property: Deleted property
+    """
     logger.info("Deleting property %s", property_id)
     db_property = crud.get_property(db, property_id=property_id)
     if db_property is None:
@@ -146,7 +202,16 @@ def upload_properties_csv(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
-    """Upload properties from a CSV file."""
+    """Upload properties from a CSV file.
+
+    Args:
+        file (UploadFile): CSV file
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+        auth_token (str, optional): Authorization token. Defaults to Depends(oauth2_scheme).
+
+    Returns:
+        dict: Upload status
+    """
     logger.info("Uploading properties from CSV file %s", file.filename)
     if not file.filename.endswith(".csv"):
         logger.error("File format not supported. Please upload a CSV file.")
@@ -196,7 +261,15 @@ async def get_price_distribution(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
-    """Get the distribution of property prices as a base64 PNG image."""
+    """Get the distribution of property prices as a base64 PNG image.
+
+    Args:
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+        auth_token (str, optional): Authorization token. Defaults to Depends(oauth2_scheme).
+
+    Returns:
+        dict: Base64 PNG image
+    """
     logger.info("Getting property price distribution")
     img_base64 = plot_price_distribution(db)
     return {"image": img_base64}
@@ -207,7 +280,15 @@ async def get_bedrooms_distribution(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
-    """Get the distribution of properties by number of bedrooms as a base64 PNG image."""
+    """Get the distribution of properties by number of bedrooms as a base64 PNG image.
+
+    Args:
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+        auth_token (str, optional): Authorization token. Defaults to Depends(oauth2_scheme).
+
+    Returns:
+        dict: Base64 PNG image
+    """
     logger.info("Getting property bedrooms distribution")
     img_base64 = plot_bedrooms_distribution(db)
     return {"image": img_base64}
@@ -226,7 +307,23 @@ async def get_price_outliers(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
-    """Get properties with outlier prices."""
+    """Get properties with outlier prices.
+
+    Args:
+        price_min (float, optional): Minimum price. Defaults to Query(None, ge=0).
+        price_max (float, optional): Maximum price. Defaults to Query(None, ge=0).
+        bedrooms (int, optional): Number of bedrooms. Defaults to Query(None, ge=0).
+        bathrooms (int, optional): Number of bathrooms. Defaults to Query(None, ge=0).
+        city (str, optional): City. Defaults to Query(None).
+        factor (float, optional): Factor to determine outliers. Defaults to 1.5.
+        skip (int, optional): Number of records to skip. Defaults to 0.
+        limit (int, optional): Number of records to return. Defaults to 10.
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+        auth_token (str, optional): Authorization token. Defaults to Depends(oauth2_scheme).
+
+    Returns:
+        list[schemas.Property]: List of properties
+    """
     logger.info(
         "Getting price outliers with filters price_min=%s, price_max=%s, bedrooms=%s, bathrooms=%s, city=%s, factor=%s",
         price_min,
@@ -259,7 +356,17 @@ async def get_historical_insights(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
-    """Get historical insights based on the DateListed column."""
+    """Get historical insights based on the DateListed column.
+
+    Args:
+        start_date (datetime, optional): Start date. Defaults to Query(None).
+        end_date (datetime, optional): End date. Defaults to Query(None).
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+        auth_token (str, optional): Authorization token. Defaults to Depends(oauth2_scheme).
+
+    Returns:
+        list[schemas.PropertyHistoricalInsight]: List of historical insights
+    """
     logger.info(
         "Getting historical insights with filters start_date=%s, end_date=%s",
         start_date,
@@ -277,7 +384,16 @@ async def read_property(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):
-    """Get a property by ID."""
+    """Get a property by ID.
+
+    Args:
+        property_id (int): Property ID
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+        auth_token (str, optional): Authorization token. Defaults to Depends(oauth2_scheme).
+
+    Returns:
+        schemas.Property: Property
+    """
     logger.info("Getting property %s", property_id)
     db_property = crud.get_property(db, property_id=property_id)
     if db_property is None:
