@@ -1,9 +1,11 @@
-# tests/crud/test_properties.py
+"""Tests for the CRUD operations for properties."""
+
 from sqlalchemy.orm import Session
 from app import crud, schemas
 
 
 def test_create_property(db: Session):
+    """Test creating a property."""
     property_data = schemas.PropertyCreate(
         property_id=1,
         address="123 Main St",
@@ -21,11 +23,13 @@ def test_create_property(db: Session):
 
 
 def test_get_property(db: Session):
+    """Test getting a property."""
     property_ = crud.get_property(db, 1)
     assert property_ is not None
 
 
 def test_update_property(db: Session):
+    """Test updating a property."""
     update_data = {"price": 120000}
     property_ = crud.update_property(db, 1, update_data)
     assert property_.price == 120000
