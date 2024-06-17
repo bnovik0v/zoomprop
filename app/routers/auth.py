@@ -1,5 +1,7 @@
 """Authentication routes."""
 
+import logging
+from math import log
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -18,7 +20,7 @@ from app.database import get_db
 from app.settings import get_settings
 
 settings = get_settings()
-
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth")
 
 
@@ -27,8 +29,10 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
     """OAuth2 compatible token login, get an access and refresh token for user."""
+    logger.info(f"User {form_data.username} is logging in")
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
+        logger.warning(f"User {form_data.username} failed to log in")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -48,8 +52,10 @@ async def refresh_access_token(
     request_body: TokenRefreshRequest, db: Session = Depends(get_db)
 ):
     """Refresh access token."""
+    logger.info("Refreshing access token")
     user = await get_user_by_refresh_token(request_body.refresh_token, db)
     if not user:
+        logger.warning("Invalid refresh token")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token",
@@ -66,8 +72,10 @@ async def create_user_signup(
     auth_token: str = Depends(oauth2_scheme),
 ):
     """Create new user and return access and refresh tokens."""
+    logger.info(f"Creating new user {user_in.email}")
     db_user = crud.get_user(db, email=user_in.email)
     if db_user:
+        logger.warning(f"Email {user_in.email} already registered")
         raise HTTPException(status_code=400, detail="Email already registered")
     user_in.hashed_password = get_password_hash(user_in.password)
     user = crud.create_user(db=db, user=user_in)
@@ -81,4 +89,5 @@ async def verify_token_endpoint(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
     """Verify JWT token's validity."""
+    logger.info("Verifying token")
     return await verify_access_token(token, db)

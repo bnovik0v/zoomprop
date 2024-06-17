@@ -6,7 +6,6 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Settings for the app."""
 
-    port: int
     gunicorn_workers: int
     sqlite_db: str = "./database/database.db"
     secret_key: str

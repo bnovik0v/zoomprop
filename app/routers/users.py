@@ -55,8 +55,8 @@ def read_user(
 @router.get("/users/", response_model=List[schemas.User])
 def read_users(
     limit: int | None = None,
-    sort_by: str | None = Query(None, regex="^(creation_date|update_date|id)$"),
-    sort_order: str | None = Query(None, regex="^(asc|desc)$"),
+    sort_by: str | None = Query(None, pattern="^(creation_date|update_date|id)$"),
+    sort_order: str | None = Query(None, pattern="^(asc|desc)$"),
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
 ):

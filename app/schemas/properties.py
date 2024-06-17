@@ -23,8 +23,18 @@ class PropertyCreate(PropertyBase):
     """Property create model."""
 
 
-class PropertyUpdate(PropertyBase):
+class PropertyUpdate(BaseModel):
     """Property update model."""
+    
+    address: str | None = None
+    city: str | None = None
+    state: str | None = None
+    zip_code: str | None = None
+    price: float | None = None
+    bedrooms: int | None = None
+    bathrooms: float | None = None
+    square_feet: int | None = None
+    date_listed: datetime | None = None
 
 
 class Property(PropertyBase):

@@ -33,7 +33,7 @@ async def create_property(
     return crud.create_property(db=db, property_=property_)
 
 
-@router.get("/properties/statistics", response_model=schemas.PropertyStatistics)
+@router.get("/properties/statistics/", response_model=schemas.PropertyStatistics)
 async def get_property_statistics(
     price_min: float | None = Query(None, ge=0),
     price_max: float | None = Query(None, ge=0),
@@ -97,7 +97,7 @@ async def read_properties(
     return properties
 
 
-@router.put("/properties/{property_id}", response_model=schemas.Property)
+@router.put("/properties/{property_id}/", response_model=schemas.Property)
 async def update_property(
     property_id: int,
     property_: schemas.PropertyUpdate,
@@ -113,7 +113,7 @@ async def update_property(
     return crud.update_property(db=db, property_id=property_id, property_=property_)
 
 
-@router.delete("/properties/{property_id}", response_model=schemas.Property)
+@router.delete("/properties/{property_id}/", response_model=schemas.Property)
 async def delete_property(
     property_id: int,
     db: Session = Depends(get_db),
@@ -140,7 +140,7 @@ def parse_date(date_str: str) -> datetime.datetime | None:
     raise ValueError(f"Date format for {date_str} not supported.")
 
 
-@router.post("/properties/upload_csv/")
+@router.post("/properties/upload/csv/")
 def upload_properties_csv(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
@@ -191,8 +191,7 @@ def upload_properties_csv(
     return {"status": "success", "message": "Properties uploaded successfully"}
 
 
-
-@router.get("/properties/plot/price_distribution")
+@router.get("/properties/plot/price_distribution/")
 async def get_price_distribution(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
@@ -203,7 +202,7 @@ async def get_price_distribution(
     return {"image": img_base64}
 
 
-@router.get("/properties/plot/bedrooms_distribution")
+@router.get("/properties/plot/bedrooms_distribution/")
 async def get_bedrooms_distribution(
     db: Session = Depends(get_db),
     auth_token: str = Depends(oauth2_scheme),
@@ -214,7 +213,7 @@ async def get_bedrooms_distribution(
     return {"image": img_base64}
 
 
-@router.get("/properties/outliers", response_model=list[schemas.Property])
+@router.get("/properties/outliers/", response_model=list[schemas.Property])
 async def get_price_outliers(
     price_min: float | None = Query(None, ge=0),
     price_max: float | None = Query(None, ge=0),
@@ -251,21 +250,6 @@ async def get_price_outliers(
     return outliers
 
 
-@router.get("/properties/{property_id}", response_model=schemas.Property)
-async def read_property(
-    property_id: int,
-    db: Session = Depends(get_db),
-    auth_token: str = Depends(oauth2_scheme),
-):
-    """Get a property by ID."""
-    logger.info("Getting property %s", property_id)
-    db_property = crud.get_property(db, property_id=property_id)
-    if db_property is None:
-        logger.error("Property %s not found", property_id)
-        raise HTTPException(status_code=404, detail="Property not found")
-    return db_property
-
-
 @router.get(
     "/properties/insights/", response_model=list[schemas.PropertyHistoricalInsight]
 )
@@ -285,3 +269,18 @@ async def get_historical_insights(
         db, start_date=start_date, end_date=end_date
     )
     return insights
+
+
+@router.get("/properties/{property_id}/", response_model=schemas.Property)
+async def read_property(
+    property_id: int,
+    db: Session = Depends(get_db),
+    auth_token: str = Depends(oauth2_scheme),
+):
+    """Get a property by ID."""
+    logger.info("Getting property %s", property_id)
+    db_property = crud.get_property(db, property_id=property_id)
+    if db_property is None:
+        logger.error("Property %s not found", property_id)
+        raise HTTPException(status_code=404, detail="Property not found")
+    return db_property

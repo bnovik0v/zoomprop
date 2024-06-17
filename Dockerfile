@@ -25,6 +25,9 @@ COPY ./gunicorn.conf.py /app/gunicorn.conf.py
 # Copy data and other necessary files
 COPY .env /app/.env
 
+# Print environment variables for debugging
+RUN echo "PORT=${PORT}"
+
 # Expose the port the app runs on
 EXPOSE 8000
 

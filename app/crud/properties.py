@@ -187,29 +187,38 @@ def detect_price_outliers(
     limit: int = 10,
 ) -> list[models.Property]:
     """Detect outliers in property prices using the IQR method with optional filters."""
-    query = db.query(models.Property.price)
-    query = apply_filters(query, price_min, price_max, bedrooms, bathrooms, city)
 
-    prices = [price[0] for price in query.all() if price[0] is not None]
+    # Apply initial filters to the query
+    filtered_query = db.query(models.Property)
+    filtered_query = apply_filters(
+        filtered_query, price_min, price_max, bedrooms, bathrooms, city
+    )
+
+    # Extract prices after applying the filters
+    prices = [
+        property_.price
+        for property_ in filtered_query.all()
+        if property_.price is not None
+    ]
     if not prices:
         return []
 
+    # Calculate IQR and outlier bounds
     q1 = np.percentile(prices, 25)
     q3 = np.percentile(prices, 75)
     iqr = q3 - q1
     lower_bound = q1 - factor * iqr
     upper_bound = q3 + factor * iqr
 
-    return (
-        query
-        .filter(
-            (models.Property.price < lower_bound)
-            | (models.Property.price > upper_bound)
-        )
-        .offset(skip)
-        .limit(limit)
-        .all()
+    # Reapply filters and add outlier conditions
+    outliers_query = filtered_query.filter(
+        (models.Property.price < lower_bound) | (models.Property.price > upper_bound)
     )
+
+    # Apply pagination
+    outliers = outliers_query.offset(skip).limit(limit).all()
+
+    return outliers
 
 
 def get_historical_insights(
