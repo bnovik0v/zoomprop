@@ -33,13 +33,12 @@ Key components include:
 
 3. Add the following environment variables to the `.env` file:
    ```env
-   ENVIRONMENT=local
    GUNICORN_WORKERS=2
    SQLITE_DB=./database/database.db
    SECRET_KEY=sahdhskADHS341
    REFRESH_SECRET_KEY=1236213SAGDGhgdAGSDgg
    ADMIN_USERNAME=admin
-   ADMIN_PASSWORD=Sg2hdSuy#__!
+   ADMIN_PASSWORD=password
    ADMIN_EMAIL=admin@mail.com
    ```
 
