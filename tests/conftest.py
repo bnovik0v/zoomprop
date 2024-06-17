@@ -1,13 +1,13 @@
+"""Test fixtures for the FastAPI app."""
+
 import pytest
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
+from fastapi.testclient import TestClient
 from app.database import Base, get_db
 from app.main import app
 from app.settings import get_settings
-from fastapi.testclient import TestClient
-
-# Import all models here to ensure they are created
-from app.models import User, Property  # Adjust import based on your actual models
+from app.models import User, Property
 
 settings = get_settings()
 DATABASE_URL = "sqlite:///./test.db"
@@ -18,7 +18,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 @pytest.fixture(scope="module")
 def db():
-    # Create all tables
+    """Create a clean database for testing."""
     Base.metadata.create_all(bind=engine)
     print("Tables created")
     inspector = inspect(engine)
@@ -35,7 +35,9 @@ def db():
 
 
 @pytest.fixture(scope="module")
-def client(db):  # Ensure db fixture is called to create the schema
+def client(db):
+    """Get a FastAPI test client."""
+
     def _get_test_db():
         try:
             yield db
@@ -50,12 +52,14 @@ def client(db):  # Ensure db fixture is called to create the schema
 
 @pytest.fixture(scope="module")
 def auth_headers(client: TestClient):
+    """Get authorization headers."""
     headers = {"Authorization": f"Bearer token"}
     return headers
 
 
 def test_setup(db):
+    """Test database setup."""
     inspector = inspect(engine)
     tables = inspector.get_table_names()
-    assert 'users' in tables, "users table was not created"
-    assert 'properties' in tables, "properties table was not created"
+    assert "users" in tables, "users table was not created"
+    assert "properties" in tables, "properties table was not created"
